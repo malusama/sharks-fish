@@ -1,26 +1,66 @@
 package controller;
-import java.awt.Color;
-import java.io.IOException;
-import javax.swing.JFrame;
+import javax.swing.*;
+import java.awt.*;
 
-public class Main {
-	public static void main(String args[]) throws IOException{
-
-		windows();
+class DrawWindows extends JFrame{
+	
+	DrawWindows(){
+		
+		this.setTitle("Sharks And Fish"); //设置标题
+	    this.setSize(500, 500);  // 设置窗口大小
+	     //这是做什么的？
+	   // f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);  //这是做什么的？
+	      //设置为显示
+	    
+	    //Graphics graphics = this.getGraphics();
+	    
+	    //paint(graphics);
+	    
+	    
+	    this.setVisible(true);
+	    
+	    
+	}
+	public void paint(Graphics g){
+		g.setColor(Color.BLACK);
+		g.fillRect(0, 0, 200, 200);
 		
 	}
-
-	public static void windows(){
-
-		JFrame f=new JFrame("第一个Swing窗口");//实例化窗体对象
-
-		f.setSize(500,500);//设置窗体大小
+	public void paint(Graphics g, SharksAndFish object){
 		
-		f.setBackground(Color.WHITE);//设置窗体的背景颜色
-
-		f.setLocation(50,50);//设置窗体的显示位置
-
-		f.setVisible(true);//让组建显示
-
+		
+		
+	}
+	 
+}
+class SharksAndFish{
+	int width;
+	int height;
+	SharksAndFish(int width, int height){
+		this.width = width;
+		this.height = height;
 	}
 }
+public class Main extends JPanel {
+	   public static void main(String[] a) {
+		   DrawWindows MainWindows = new DrawWindows();
+		   //Frame frame = new Frame("Sharks and Fish");
+		   //frame.setSize(500, 500);
+		  // frame.setVisible(true);
+	   }
+	   public void paint(Graphics g,SharksAndFish sea) {
+		   g.setColor(Color.white);
+		   for(int i = 0;i < sea.height;i++)
+		   {
+			   for(int j = 0;j < sea.width;j++){
+				   
+				   g.fillRect (0, 0, 20, 20);
+				   
+			   }
+			   
+		   }
+		   
+		   
+	   }
+}
+
