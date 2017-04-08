@@ -6,16 +6,19 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.LinkedList;
 
+interface Constants {
+    //private Constants() {}
+    public final static int EMPTY = 0;
+	public final static int SHARK = 1;
+	public final static int FISH = 2;  
+	public final static int StarveTime = 3;
+	public final static int OceanWhdth = 25;
+	public final static int OceanHeight = 25;
+	public final static double SharkAndFishRatio = 0.25;
+}
 
-
-class sea{
-	  public final static int EMPTY = 0;
-	  public final static int SHARK = 1;
-	  public final static int FISH = 2;  
-	  public final static int StarveTime = 3;
-	  public final static int OceanWhdth = 80;
-	  public final static int OceanHeight = 80;
-	  public final static double SharkAndFishRatio = 0.25;
+class sea implements Constants{
+	  
 	int width;
 	int height;
     int starveTime;
@@ -34,6 +37,7 @@ class sea{
 				}
 				if(d < SharkAndFishRatio){					//如果d小于 SharkAndFishRatio 比则单元格为鲨鱼
 					ocean[i][j][0] = SHARK;
+					ocean[i][j][2] = StarveTime;
 				}
 				if(d > SharkAndFishRatio && d <= 1){		//d在  SharkAndFishRatio ~ 1区间则为鱼 
 					ocean[i][j][0] = FISH;
@@ -55,6 +59,7 @@ class sea{
 					}else{							//邻居没有鱼时执行以下操作
 						if(ocean[i][j][2] != 0){ 	//如果饥饿度不为0
 							ocean[i][j][2]--;		//饥饿度减1
+							ocean[i][j][1] = SHARK;
 						}else{					
 							ocean[i][j][1] = EMPTY;	//否则单元格为0，鲨鱼死掉了
 						}
@@ -69,7 +74,7 @@ class sea{
 					}
 					if(sharkcount > 1){
 						ocean[i][j][1] = SHARK;						//当单元格周围有两条以上鲨鱼时单元格出现一条新生鲨鱼
-						ocean[i][j][2] = StarveTime;							//新生鲨鱼饥饿度为满，4
+						ocean[i][j][2] = StarveTime;				//新生鲨鱼饥饿度为满，4
 					}
 				}
 				if(ocean[i][j][0] == EMPTY){					//当单元格为空时
@@ -81,7 +86,7 @@ class sea{
 					}
 					if(fishcount >=2 && sharkcount >= 2){		//当单元格周围至少2条鱼2条鲨鱼时
 						ocean[i][j][1] = SHARK;					//产生新的鲨鱼
-						ocean[i][j][2] = StarveTime;						//新鲨鱼饥饿为4，即使没吃东西
+						ocean[i][j][2] = StarveTime;			//新鲨鱼饥饿为4，即使没吃东西
 					}
 				}
 				
@@ -140,21 +145,12 @@ class sea{
 				
 	}
 }
-public class Main extends JFrame {
-	  public final static int EMPTY = 0;
-	  public final static int SHARK = 1;
-	  public final static int FISH = 2;   
-	  public final static int StarveTime = 3;
-	  public final static int OceanWhdth = 80;
-	  public final static int OceanHeight = 80;
-	  
-	
-	
+public class Main extends JFrame implements Constants {
 	   public static void main(String[] a) throws InterruptedException {
 		   
 		   JFrame frame = new JFrame("Sharks and Fish");
 		   frame.setLocation(10, 10);
-		   frame.setSize(1000, 1000);
+		   frame.setSize(500, 500);
 		   frame.setLayout(null);
 		   frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
@@ -193,14 +189,20 @@ public class Main extends JFrame {
 				  if(object.ocean[i][j][0] == EMPTY){
 					  g.setColor(Color.WHITE);
 					  g.fillRect(i * 10, j * 10, 10, 10);
+					  g.setColor(Color.BLACK);
+					  g.drawRect(i * 10, j * 10, 10, 10);
 				  }
 				  if(object.ocean[i][j][0] == SHARK){
 					  g.setColor(Color.RED);
 					  g.fillRect(i * 10, j * 10, 10, 10);
+					  g.setColor(Color.BLACK);
+					  g.drawRect(i * 10, j * 10, 10, 10);
 				  }
 				  if(object.ocean[i][j][0] == FISH){
 					  g.setColor(Color.GREEN);
 					  g.fillRect(i * 10, j * 10, 10, 10);
+					  g.setColor(Color.BLACK);
+					  g.drawRect(i * 10, j * 10, 10, 10);
 				  }
 				  
 			  }
