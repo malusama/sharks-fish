@@ -12,9 +12,66 @@ interface Constants {
 	public final static int SHARK = 1;
 	public final static int FISH = 2;  
 	public final static int StarveTime = 3;
-	public final static int OceanWhdth = 25;
-	public final static int OceanHeight = 25;
+	public final static int OceanWhdth = 10;
+	public final static int OceanHeight = 10;
 	public final static double SharkAndFishRatio = 0.25;
+}
+class node{
+	int  type;
+	int num;
+	int StarveTime;
+	node next;
+	node previous;
+	node(){
+		
+	}
+	node(int  type, int num, int StarveTime){
+		this.type = type;
+		this.num = num;
+		this.StarveTime = StarveTime;
+	}
+	
+}
+class seacode extends node implements Constants{
+	private node head;	 //	只记录当前行的头节点
+	private node tail;	 //	只记录当前行的尾节点
+	int type = -1; 		 //	记录当前遍历生物的类型
+	node yy[];     		 // 动态数组，储存每一行链表的头节点
+	seacode(){
+		head = tail = null;
+	}
+	seacode(sea ocean, int x, int y){
+		yy = new node[x];
+		for(int i = 0; i < x; i++ ){
+			head = tail = new node(ocean.ocean[i][0][0], 1, ocean.ocean[i][0][2]);
+			yy[i] = head;	
+			type = ocean.ocean[i][0][0];
+			for(int j = 1; j < y; j++){
+				if(ocean.ocean[i][j][0] == type){					//如果相同类型的
+					if(ocean.ocean[i][j][0] == SHARK){				//如果是鲨鱼就添加饥饿值
+						setNodeNum(tail);
+						setNodeStarveTime(tail,ocean.ocean[i][j][2]);
+					}
+					setNodeNum(tail);								
+				}else{												//如果不同类型就创建一个新的节点记录
+					addnode(ocean.ocean[i][j][0], 1, 0); 
+					type = ocean.ocean[i][j][0];
+				}
+				
+			}
+		}
+	}
+	void setNodeStarveTime(node node, int StarveTime){
+		node.StarveTime = StarveTime;
+	}
+	void setNodeNum(node node){
+		node.num++;
+	}
+	void addnode(int  type, int num, int StarveTime){
+		tail.next = new node(type,num,StarveTime);
+		tail = tail.next;
+	}
+	
 }
 
 class sea implements Constants{
@@ -30,9 +87,9 @@ class sea implements Constants{
 		ocean = new int[width][height][3]; // 最后一个数 0 是当前状态 1是下一个状态 2储存饥饿数
 		for(int i = 0;i < width; i++){
 			for(int j = 0; j < height; j++){
-				double d = (Math.random() * 4);				//产生0~2区间的随机数
+				double d = (Math.random() * 4);				//产生0~4区间的随机数
 				//System.out.println(d); 
-				if(d > 1){									//这里海洋里空的单元格占一半
+				if(d > 1){									//这里鲨鱼与 鱼只占一个单位
 					ocean[i][j][0] = EMPTY;
 				}
 				if(d < SharkAndFishRatio){					//如果d小于 SharkAndFishRatio 比则单元格为鲨鱼
@@ -106,10 +163,10 @@ class sea implements Constants{
 		int fishcount = 0;
 		
 		
-		int up_x = x + OceanHeight + 1 %  OceanHeight;
-		int down_x = x + OceanHeight - 1 % OceanHeight;
-		int up_y = y + OceanWhdth + 1 % OceanWhdth;
-		int down_y = y + OceanWhdth - 1 % OceanWhdth;
+		int up_x = (x + OceanHeight + 1) %  OceanHeight;
+		int down_x = (x + OceanHeight - 1) % OceanHeight;
+		int up_y = (y + OceanWhdth + 1) % OceanWhdth;
+		int down_y = (y + OceanWhdth - 1) % OceanWhdth;
 		int[] xx = new int[3];
 		xx[0] = up_x;
 		xx[1] = x;
@@ -123,10 +180,10 @@ class sea implements Constants{
 				if(i == x && j == y){
 					continue;
 				}
-				if(ocean[i][j][0] == SHARK){
+				if(ocean[ xx[i] ][ yy[j] ][0] == SHARK){
 					sharkcount++;
 				}
-				if(ocean[i][j][0] == FISH){
+				if(ocean[ xx[i] ][ yy[j] ][0] == FISH){
 					fishcount++;
 				}
 			}
@@ -142,7 +199,7 @@ class sea implements Constants{
 			return -1;  //出错
 		}
 		
-				
+		
 	}
 }
 public class Main extends JFrame implements Constants {
@@ -153,52 +210,84 @@ public class Main extends JFrame implements Constants {
 		   frame.setSize(500, 500);
 		   frame.setLayout(null);
 		   frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-
-		   sea DarkCentury = new sea(OceanWhdth, OceanHeight, StarveTime);
 		   JPanel panel = new JPanel();
 		   frame.add(panel);
 		   panel.setBounds(0, 0, 500, 500);
 		   //panel.setBackground(Color.WHITE);
 		   frame.setVisible(true);
-		   
-		   Graphics graphics = panel.getGraphics();
-		   
-		   if(graphics == null){
-			   
-			   System.out.println("null"); 
-			   
-		   }
-		   
-		   
+		   Graphics graphics = panel.getGraphics();   
+		   sea DarkCentury = new sea(OceanWhdth, OceanHeight, StarveTime);
 		   
 		   while(true){
+			   seacode code = new seacode(DarkCentury, OceanWhdth, OceanHeight);
 			   Thread.sleep(1000);  
 			   DrawSea(graphics, DarkCentury);
+			   
+			   printseacode(code);
 			   DarkCentury.timeStep();
 		   }
 		   
 
 
 	   }
+	   static void windows(){
+		   
+	   }
 	   
-	   
+	   static void printseacode(seacode code){
+		   node tem;
+		   for(int i = 0; i < OceanHeight; i++){
+			   tem = code.yy[i];
+			   while(tem != null){
+				   System.out.print(decode(tem.type, tem.type, tem.StarveTime) + tem.num); 
+				   System.out.print("   ");    //给个间隔
+				   tem = tem.next;
+			   }
+			   System.out.println("\n");
+		   }
+	   }
+	   static String decode(int type, int x, int StarveTime){	//tpye是类型， x是转换的值， StarveTime是饥饿度， 当类型是鲨鱼的时候才打印出来
+		  if(type == SHARK){
+			  if(x == 0){
+				   return ".";
+			   }
+			   if(x == 1){
+				   return "S" + StarveTime + "，";
+			   }
+			   if(x == 2){
+				   return "F";
+			   }
+		  }else{
+			  if(x == 0){
+				   return ".";
+			   }
+			   if(x == 1){
+				   return "S";
+			   }
+			   if(x == 2){
+				   return "F";
+			   }
+		  }
+		   
+		return null;
+	   }
 	   private static void DrawSea(Graphics g, sea object){
 		  //g.setColor(Color.red);
-		  for(int i = 0; i < object.width; i++){
-			  for(int j = 0; j < object.height; j++){
-				  if(object.ocean[i][j][0] == EMPTY){
+		  for(int i = 0; i < object.height; i++){
+			  for(int j = 0; j < object.width; j++){
+				  if(object.ocean[j][i][0] == EMPTY){
 					  g.setColor(Color.WHITE);
 					  g.fillRect(i * 10, j * 10, 10, 10);
 					  g.setColor(Color.BLACK);
 					  g.drawRect(i * 10, j * 10, 10, 10);
 				  }
-				  if(object.ocean[i][j][0] == SHARK){
+				  if(object.ocean[j][i][0] == SHARK){
 					  g.setColor(Color.RED);
 					  g.fillRect(i * 10, j * 10, 10, 10);
 					  g.setColor(Color.BLACK);
 					  g.drawRect(i * 10, j * 10, 10, 10);
 				  }
-				  if(object.ocean[i][j][0] == FISH){
+				  if(object.ocean[j][i][0] == FISH){
 					  g.setColor(Color.GREEN);
 					  g.fillRect(i * 10, j * 10, 10, 10);
 					  g.setColor(Color.BLACK);
