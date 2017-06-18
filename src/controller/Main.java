@@ -1,31 +1,30 @@
-package controller;
+package tett;
 import javax.swing.*;
 import java.awt.*;
-import java.awt.image.BufferedImage;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.LinkedList;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+
 
 interface Constants {
     //private Constants() {}
     public final static int EMPTY = 0;
 	public final static int SHARK = 1;
 	public final static int FISH = 2;  
-	public final static int StarveTime = 10;
-	public final static int OceanWhdth = 8;	// Y ,J
-	public final static int OceanHeight = 8;	// X, I
-	public final static double SharkAndFishRatio = 1;
+	public final static int StarveTime = 3;
+	public final static int OceanWhdth = 30;	// Y ,J
+	public final static int OceanHeight = 30;	// X, I
+	public final static double SharkAndFishRatio = 0.25;
 }
-class node{
+class Node{
 	int  type;
 	int num;
 	int StarveTime;
-	node next;
-	node previous;
-	node(){
+	Node next;
+	Node previous;
+	Node(){
 		
 	}
-	node(int  type, int num, int StarveTime){
+	Node(int  type, int num, int StarveTime){
 		this.type = type;
 		this.num = num;
 		this.StarveTime = StarveTime;
@@ -33,18 +32,18 @@ class node{
 	}
 	
 }
-class seacode extends node implements Constants{
-	private node head;	 //	只记录当前行的头节点
-	private node tail;	 //	只记录当前行的尾节点
+class seacode extends Node implements Constants{
+	private Node head;	 //	只记录当前行的头节点
+	private Node tail;	 //	只记录当前行的尾节点
 	int type = -1; 		 //	记录当前遍历生物的类型
-	node yy[];     		 // 动态数组，储存每一行链表的头节点
+	Node yy[];     		 // 动态数组，储存每一行链表的头节点
 	seacode(){
 		head = tail = null;
 	}
 	seacode(sea ocean){
-		yy = new node[OceanHeight];
+		yy = new Node[OceanHeight];
 		for(int i = 0; i < OceanHeight; i++ ){
-			head = tail = new node(ocean.ocean[i][0][0], 1, ocean.ocean[i][0][2]);
+			head = tail = new Node(ocean.ocean[i][0][0], 1, ocean.ocean[i][0][2]);
 			yy[i] = head;	
 			type = ocean.ocean[i][0][0];
 			for(int j = 1; j < OceanWhdth; j++){
@@ -53,7 +52,7 @@ class seacode extends node implements Constants{
 						if(ocean.ocean[i][j][2] == tail.StarveTime){	//如果饥饿值相同 就增加节点的数量
 							setNodeNum(tail);							//增加节点的数量
 						}else{											//如果不同
-							addnode(ocean.ocean[i][j][0], 1, ocean.ocean[i][j][2]); //增加一个节点
+							addNode(ocean.ocean[i][j][0], 1, ocean.ocean[i][j][2]); //增加一个节点
 						}
 							//
 						//setNodeStarveTime(tail,ocean.ocean[i][j][2]);// 设置饥饿值 
@@ -61,7 +60,7 @@ class seacode extends node implements Constants{
 						setNodeNum(tail);
 					}							
 				}else{														//如果不同类型就创建一个新的节点记录
-					addnode(ocean.ocean[i][j][0], 1, ocean.ocean[i][j][2]);  //参数含义分别是类型，数量，饥饿值
+					addNode(ocean.ocean[i][j][0], 1, ocean.ocean[i][j][2]);  //参数含义分别是类型，数量，饥饿值
 					type = ocean.ocean[i][j][0];
 					
 				}
@@ -69,41 +68,35 @@ class seacode extends node implements Constants{
 			}
 		}
 	}
-	public void addfish(seacode code){
-		
-	}
-	public void addshark(seacode code){
-		
-	}
 	public int[][][] decode(seacode code){
 		
 		int decode[][][] = new int[OceanWhdth][OceanHeight][3];
-		node node;
+		Node Node;
 		int j;
 		for(int i = 0; i < OceanWhdth; i++){
-			node = code.yy[i];
+			Node = code.yy[i];
 			j = 0;	// J 为记录当前一行已经解码的个数， 
-			while(node != null){
-				for(int k = 0;k < node.num; k++){		//这一行的节点赋值给数组
-					decode[i][j + k][0] = node.type;
-					//decode[i][j + k][2] = node.StarveTime;
+			while(Node != null){
+				for(int k = 0;k < Node.num; k++){		//这一行的节点赋值给数组
+					decode[i][j + k][0] = Node.type;
+					//decode[i][j + k][2] = Node.StarveTime;
 					
 				}
-				j += node.num;
-				node = node.next;
+				j += Node.num;
+				Node = Node.next;
 			}
 		}
 		return decode;
 		
 	}
-	void setNodeStarveTime(node node, int StarveTime){		//设置节点的饥饿值
-		node.StarveTime = StarveTime;
+	void setNodeStarveTime(Node Node, int StarveTime){		//设置节点的饥饿值
+		Node.StarveTime = StarveTime;
 	}
-	void setNodeNum(node node){								//设置节点记录的数量
-		node.num++;
+	void setNodeNum(Node Node){								//设置节点记录的数量
+		Node.num++;
 	}
-	void addnode(int  type, int num, int StarveTime){		//添加节点，维护尾指针
-		tail.next = new node(type,num,StarveTime);
+	void addNode(int  type, int num, int StarveTime){		//添加节点，维护尾指针
+		tail.next = new Node(type,num,StarveTime);
 		tail = tail.next;
 		tail.next = null;
 	}
@@ -123,7 +116,7 @@ class sea implements Constants{
 		ocean = new int[height][width][3]; // 最后一个数 0 是当前状态 1是下一个状态 2储存饥饿数
 		for(int i = 0;i < height; i++){
 			for(int j = 0; j < width; j++){
-				double d = (Math.random() * 10);				//产生0~4区间的随机数
+				double d = (Math.random() * 4);				//产生0~4区间的随机数
 				//System.out.println(d); 
 				if(d > 1){									//这里鲨鱼与 鱼只占一个单位
 					ocean[i][j][0] = EMPTY;
@@ -153,70 +146,63 @@ class sea implements Constants{
 						
 						if(ocean[i][j][2] != 1){ 	//如果饥饿度不为0
 							if(sharkcount == EMPTY){	//如果四周鱼和鲨鱼都为空 则移动
-								int random = (int) (Math.random() * 7 + 1);
-								int x,y;
+								int random = (int) (Math.random() * 8);
+								int x = 0,y = 0;
 								switch(random){
-								 case 1:
+								case 0:
+									x=(i-1+OceanHeight)%OceanHeight;  //左上移动
+									y=(j-1+OceanWhdth)%OceanWhdth;
+									ocean[x][y][1]=ocean[i][j][0];
+			                    	ocean[x][y][2]=--ocean[i][j][2];
+			                    	break;
+								case 1:
 				                    	x=i;
-				                    	y=(j-1+OceanHeight)%OceanHeight;
+				                    	y=(j-1+OceanWhdth)%OceanWhdth;   //向上移动
 				                    	ocean[x][y][1]=ocean[i][j][0];
 				                    	ocean[x][y][2]=--ocean[i][j][2];
-				                    	System.out.println("old x and y is: " + i + "  " + j);
-										System.out.println("new x and y is: " + x + "  " + y);
 				                    	break;
-				                    case 2:
-				                    	x=(i+1+OceanWhdth)%OceanWhdth;
-				                    	y=(j-1+OceanHeight)%OceanHeight;
+				                case 2:
+				                    	x=(i+1+OceanHeight)%OceanHeight;   //右上移动
+				                    	y=(j-1+OceanWhdth)%OceanWhdth;
 				                    	ocean[x][y][1]=ocean[i][j][0];
 				                    	ocean[x][y][2]=--ocean[i][j][2];
-				                    	System.out.println("old x and y is: " + i + "  " + j);
-										System.out.println("new x and y is: " + x + "  " + y);
 				                    	break;
 				                    case 3:
-				                    	x=(i-1+OceanWhdth)%OceanHeight;
+				                    	x=(i-1+OceanHeight)%OceanHeight;    //向左移动
 				                    	y=j;
 				                    	ocean[x][y][1]=ocean[i][j][0];
 				                    	ocean[x][y][2]=--ocean[i][j][2];
-				                    	System.out.println("old x and y is: " + i + "  " + j);
-										System.out.println("new x and y is: " + x + "  " + y);
 				                    	break;
 				                    case 4:
-				                    	x=(i+1+OceanWhdth)%OceanWhdth;
+				                    	x=(i+1+OceanHeight)%OceanHeight;    //向右移动
 				                    	y=j;
 				                    	ocean[x][y][1]=ocean[i][j][0];
 				                    	ocean[x][y][2]=--ocean[i][j][2];
-				                    	System.out.println("old x and y is: " + i + "  " + j);
-										System.out.println("new x and y is: " + x + "  " + y);
 				                    	break;
 				                    case 5:
-				                    	x=(i-1+OceanWhdth)%OceanWhdth;
-				                    	y=(j+1+OceanHeight)%OceanHeight;
+				                    	x=(i-1+OceanHeight)%OceanHeight;   //左下移动
+				                    	y=(j+1+OceanWhdth)%OceanWhdth;
 				                    	ocean[x][y][1]=ocean[i][j][0];
 				                    	ocean[x][y][2]=--ocean[i][j][2];
-				                    	System.out.println("old x and y is: " + i + "  " + j);
-										System.out.println("new x and y is: " + x + "  " + y);
 				                    	break;
 				                    case 6:
 				                    	x=i;
-				                    	y=(j+1+OceanHeight)%OceanHeight;
+				                    	y=(j+1+OceanWhdth)%OceanWhdth;      //向下移动
 				                    	ocean[x][y][1]=ocean[i][j][0];
 				                    	ocean[x][y][2]=--ocean[i][j][2];
-				                    	System.out.println("old x and y is: " + i + "  " + j);
-										System.out.println("new x and y is: " + x + "  " + y);
 				                    	break;
 				                    case 7:
-				                    	x=(i+1+OceanWhdth)%OceanWhdth;
-				                    	y=(j+1+OceanHeight)%OceanHeight;
+				                    	x=(i+1+OceanHeight)%OceanHeight;     //右下移动
+				                    	y=(j+1+OceanWhdth)%OceanWhdth;
 				                    	ocean[x][y][1]=ocean[i][j][0];
 				                    	ocean[x][y][2]=--ocean[i][j][2];
-				                    	System.out.println("old x and y is: " + i + "  " + j);
-										System.out.println("new x and y is: " + x + "  " + y);
 				                    	break;
 								}
-								
+								//System.out.println("old x and y is: " + i + "  " + j);
+								//System.out.println("new x and y is: " + x + "  " + y);
 							}else{
-								ocean[i][j][1] = ocean[i][j][0];
-								ocean[i][j][2]--;
+								ocean[i][j][2]--;		//饥饿度减1
+								ocean[i][j][1] = SHARK;
 							}
 							
 							
@@ -241,7 +227,7 @@ class sea implements Constants{
 						ocean[i][j][2] = StarveTime;				//新生鲨鱼饥饿度为满，4
 					}
 				}
-				if(ocean[i][j][0] == EMPTY){					//当单元格为空时
+				if(ocean[i][j][0] == EMPTY && ocean[i][j][1] == EMPTY){					//当单元格为空时
 					if(fishcount < 2){							//当单元格周围少于两条鱼时
 						ocean[i][j][1] = EMPTY;					//单元格保持不变
 					}
@@ -274,11 +260,11 @@ class sea implements Constants{
 		int fishcount = 0;
 		
 		
-		int up_x = (x + OceanHeight + 1) %  OceanHeight;
-		int down_x = (x + OceanHeight - 1) % OceanHeight;
+		int down_x = (x + OceanHeight + 1) %  OceanHeight;
+		int up_x = (x + OceanHeight - 1) % OceanHeight;
 		
-		int up_y = (y + OceanWhdth + 1) % OceanWhdth;
-		int down_y = (y + OceanWhdth - 1) % OceanWhdth;
+		int down_y = (y + OceanWhdth + 1) % OceanWhdth;
+		int up_y = (y + OceanWhdth - 1) % OceanWhdth;
 		
 		int[] xx = new int[3];
 		xx[0] = up_x;
@@ -290,7 +276,7 @@ class sea implements Constants{
 		yy[2] = down_y;
 		for(int i = 0;i < 3; i++){
 			for(int j = 0;j < 3; j++){
-				if(xx[i] == x && xx[j] == y){
+				if(xx[i] == x && yy[j] == y){
 					continue;
 				}
 				if(ocean[ xx[i] ][ yy[j] ][0] == SHARK){
@@ -314,9 +300,46 @@ class sea implements Constants{
 		
 		
 	}
+	 public void addfish(){
+		 int height;
+		   int whdth;
+		   while(true){
+			   //double r=Math.random()*1000;
+			   height=(int) (Math.random() * OceanHeight);
+			   whdth= (int)( Math.random() * OceanWhdth);
+			   if(ocean[height][whdth][0]==EMPTY)
+				   break;	   
+		   }
+		   ocean[height][whdth][0]=FISH;
+		   System.out.print(" ");
+	 }
+	 public void addshark(){
+		 int height;
+		   int whdth;
+		   while(true){
+			   //double r=Math.random()*1000;
+			   height=(int)( Math.random() * OceanHeight);
+			   whdth= (int) (Math.random() * OceanWhdth);
+			   if(ocean[height][whdth][0]==EMPTY)
+				   break;	   
+		   }
+		   ocean[height][whdth][0]=SHARK;
+		   ocean[height][whdth][2]=StarveTime;
+		   System.out.print(" ");
+	 }
+	 
 }
 @SuppressWarnings("serial")
-public class Main extends JFrame implements Constants {
+public class Main extends JFrame implements Constants, ActionListener  {
+	   public Graphics graphics = null;
+	   JButton jbNextTime = new JButton("NextTime"); 
+	   JButton jbaddFish=new JButton("addFish"); 
+	   JButton jbAddShark=new JButton("AddShark"); 
+	   JButton jbMaxSpeed=new JButton("MaxSpeed"); 
+	   boolean flag = false;
+	   boolean con = false;
+	   sea DarkCentury = new sea(OceanWhdth, OceanHeight, StarveTime);
+	   seacode code = new seacode(DarkCentury);
 	   public static void main(String[] a) throws InterruptedException {
 		   
 		   
@@ -346,69 +369,96 @@ public class Main extends JFrame implements Constants {
 		   Graphics graphics = panel.getGraphics();   
 		   
 		   */
-		   Graphics graphics = windows();
-		   sea DarkCentury = new sea(OceanWhdth, OceanHeight, StarveTime);
-		   seacode code = new seacode(DarkCentury);
-		   while(true){
-			   
-			   Thread.sleep(1000);  
-			   DrawSea(graphics, DarkCentury);
-			   
-			   //printseacode(code);
-			   //printarr(code.decode(code));
-			   
-			   DarkCentury.timeStep();
-			   code = new seacode(DarkCentury);
-		   }
+		    
+		   Main W = new Main();
+		   //Graphics graphics =w.panel.getGraphics();  
 		   
+		   Thread.sleep(500);
+		   DrawSea(W.graphics, W.DarkCentury);
+		   //Thread.sleep(2000);
+		   
+		   while(true){
+			   System.out.print("");	
+			   while(W.flag){
+				   Thread.sleep(1000);  
+				   W.DarkCentury.timeStep();
+				   DrawSea(W.graphics, W.DarkCentury);
+				   
+				   printseacode(W.code);
+				   printarr(W.code.decode(W.code));
+				   
+				   
+				   W.code = new seacode(W.DarkCentury);
+				   
+				   if(W.con){
+					   
+					   W.flag = false;
+					   W.con = false;
 
+				   }
+				   //W.flag = false;
+				   //System.out.print(" second while");
+			   }
+			   
+			   //System.out.print(" first while");	   
+		   }
+	   	}
 
-	   }
-	 
-	   static Graphics windows(){
+	   Main(){
 		   JFrame frame = new JFrame("Sharks and Fish");
 		   frame.setLocation(10, 10);
 		   frame.setSize(OceanWhdth * 10 + 120, OceanHeight * 10 + 40);
 		   frame.setLayout(null);
-		   
-		   
 		   frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		   
 		   JPanel panel = new JPanel();
 		   frame.add(panel);
-		   
 		   JPanel button = new JPanel();
-		   button.setSize(100,40);
-		   button.setLayout(new GridLayout(3, 1, 5, 5));
+		   button.setSize(120,40);
+		   button.setLayout(new GridLayout(4, 1, 10, 5));
 		   frame.add(button);
-		   
-		   JButton jb1=new JButton("NextTime");  
-		   //jb1.addActionListener(this);
-		   JButton jb2=new JButton("addFish");  
-		   JButton jb3=new JButton("AddShark");  
-		   
-		   button.add(jb1);
-		   button.add(jb2);
-		   button.add(jb3);
-		   
-		   button.setBounds(OceanWhdth * 10, 0, 100, 100);
-		   
+		   jbNextTime.addActionListener(this);
+		   jbaddFish.addActionListener(this);
+		   jbAddShark.addActionListener(this);
+		   jbMaxSpeed.addActionListener(this);
+		   button.add(jbNextTime);
+		   button.add(jbaddFish);
+		   button.add(jbAddShark);
+		   button.add(jbMaxSpeed);
+		   button.setBounds(OceanWhdth * 10, 0, 100, 140);
 		   panel.setBounds(0, 0, OceanWhdth * 10, OceanHeight * 10);
-		   //panel.setBackground(Color.WHITE);
-		   
-		   
-		   
-		   
 		   frame.setVisible(true);
-		   Graphics graphics = panel.getGraphics(); 
-		   
-		   
-		   
-		   return graphics;
-		   
+		   graphics = panel.getGraphics(); 
 	   }
+
+	   public void actionPerformed(ActionEvent e) { 
+		   if (e.getSource() == jbNextTime) {
+			   
+	          this.flag = true;
+	          this.con = true;
+	          //this.DarkCentury.timeStep();
+			  //DrawSea(graphics, this.DarkCentury);
+			  //printseacode(code);
+			  //printarr(code.decode(code));
+			  //System.out.print("test");
+	         }
+		   if (e.getSource() == jbaddFish) {
+	            this.DarkCentury.addfish();
+	            DrawSea(graphics, this.DarkCentury);
+			   //System.out.print("test");
+	         }
+		   if (e.getSource() == jbAddShark) {
+			   this.DarkCentury.addshark();
+			   DrawSea(graphics, this.DarkCentury);
+			   //System.out.print("test");
+	         }
+		   if (e.getSource() == jbMaxSpeed) {
+	           this.flag = !this.flag;
+			   //System.out.print( this.flag);
+	         }
+		   
+	   	} 
 	   static void printseacode(seacode code){
-		   node tem;
+		   Node tem;
 		   for(int i = 0; i < OceanHeight; i++){
 			   tem = code.yy[i];
 			   while(tem != null){
